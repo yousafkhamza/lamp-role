@@ -1,0 +1,10 @@
+---
+httpd_port: "80"
+httpd_user: "apache"
+httpd_group: "apache"
+mysql_root_pw: "root123"
+domain: "yousaf.com"
+db_user: "wp"
+db_pw: "pass"
+db_name: "wpdb"
+wordpress_url: "https://wordpress.org/wordpress-5.7.2.tar.gz"

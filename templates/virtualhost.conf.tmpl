@@ -1,0 +1,11 @@
+<virtualhost *:{{ httpd_port }}>
+    
+    servername  {{ httpd_domain }}
+    documentroot /var/www/html/{{ httpd_domain }}
+    directoryindex index.html index.php
+    
+    <directory /var/www/html/{{httpd_domain}}>
+       allowoverride all
+    </directory>
+    
+</virtualhost>

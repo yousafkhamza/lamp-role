@@ -1,0 +1,7 @@
+---
+- name: Remove-Message
+  debug:
+    msg: "HTTPD MYSQL PHP And WordPress are Wipped From Your Server"
+- name: WordPress-Installed
+  debug:
+    msg: "WordPress Installation Successfully"

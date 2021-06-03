@@ -1,0 +1,89 @@
+---
+- name: "Task 01-Installing Apache Service"
+  yum:
+    name:
+      - httpd
+    state: present
+  register: httpd_installed
+
+- name: "Task 02-Apache Installing PHP"
+  shell: amazon-linux-extras install php7.4 -y
+
+- name: "Task 03-Creating httpd Configuration"
+  template:
+    src: httpd.conf.tmpl
+    dest: /etc/httpd/conf/httpd.conf
+  register: host_status
+
+- name: "Task 04-Creating www Directory"
+  file:
+    path: "/var/www/html"
+    state: directory
+
+- name: "Task 05-Appache Syntax Checking"
+  ignore_errors: true
+  shell: httpd -t
+  register: apache_syn
+
+- name: "apache Syntax Status"
+  when: apache_syn.rc != 0
+  debug:
+    msg: "Status => {{ apache_syn.stderr }}"
+
+- name: "apache is failed we are quit the playbook"
+  when: apache_syn.rc != 0
+  fail:
+    msg: "Paly book exiting due to apache syntax check failure."
+
+- name: "Task 07-Creating Index.html file"   
+  copy:
+    content: "<h1>Your Server is working fine</h1>"
+    dest: "/var/www/html/index.html"
+    owner: "{{ httpd_user }}"
+    group: "{{ httpd_group }}"
+
+- name: "Task 08- For Wordpress installation time Apache - Restart/Enable Service"
+  when: apache_syn.rc == 0 or host_status.changed == true or httpd_installed.changed == true
+  service:
+    name: httpd
+    state: restarted
+    enabled: true
+
+- name: "Task 09-Mariadb - package Installation"
+  yum:
+    name: 
+      - mariadb-server
+      - MySQL-python
+    state: present
+  register: maria_install
+
+- name: "Task 10-MariaDB - restarting/enabling service"
+  when: maria_install.changed == true
+  service:
+    name: mariadb
+    state: restarted
+    enabled: true
+
+- name: "Task 11-MariDB - update root password"
+  ignore_errors: true
+  mysql_user:
+    login_user: "root"
+    login_password: ""
+    user: "root"
+    password: "{{ mysql_root_pw }}"
+    host_all: true
+
+- name: "Task 12-MariaDB - removing anonymous users"
+  mysql_user:
+    login_user: "root"
+    login_password: "{{ mysql_root_pw }}"
+    user: ""
+    state: absent     
+
+- name: "Task 13-MariaDB - removing test database"
+  mysql_db:
+    login_user: "root"
+    login_password: "{{ mysql_root_pw }}"
+    name: "test"
+    state: absent
+
